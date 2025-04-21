@@ -60,7 +60,9 @@ func processReceipts(w http.ResponseWriter, r *http.Request) {
 
 	err := validate.Struct(receipt)
 	if err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
 
+		}
 	}
 
 }
