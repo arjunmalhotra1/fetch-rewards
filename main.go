@@ -26,16 +26,28 @@ type Receipt struct {
 	Total        string `json:"total" validate:"required,total"`
 }
 
+type ValidationErrorResponse struct {
+	Errors []FieldError `json:"errors"`
+}
+
+type FieldError struct {
+	Field   string `json:"field"`
+	Rule    string `json:"rule"`
+	Message string `json:"message"`
+}
+
+// TODO: Add In memory DB for Get
+// TODO: Add UUID
 // TODO: May be use contexts
 
 var validate *validator.Validate
 
 func main() {
 	validate = validator.New()
-	validate := validator.New()
+	//validate := validator.New()
 	validate.RegisterValidation("retailer", validateRetailer)
 	validate.RegisterValidation("purchaseDate", validateDateFormat)
-	validate.RegisterValidation("purchaseDate", validateTimeFormat)
+	validate.RegisterValidation("purchaseTime", validateTimeFormat)
 	validate.RegisterValidation("total", validateTotal)
 	validate.RegisterValidation("shortDescription", validateShortDescription)
 	validate.RegisterValidation("price", validatePrice)
@@ -51,6 +63,21 @@ func healthz(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, map[string]string{"status": "ok"})
 }
 
+func buildValidationErrorResponse(errs validator.ValidationErrors) ValidationErrorResponse {
+	errors := []FieldError{}
+
+	for _, err := range errs {
+		errors = append(errors, FieldError{
+			Field:   err.Field(),
+			Rule:    err.Tag(),
+			Message: fmt.Sprintf("%s failed on the '%s' rule. Please see the API documentation", err.Field(), err.Tag()),
+		})
+	}
+
+	return ValidationErrorResponse{Errors: errors}
+
+}
+
 func processReceipts(w http.ResponseWriter, r *http.Request) {
 	var receipt Receipt
 	receiptBody, _ := io.ReadAll(r.Body)
@@ -61,7 +88,10 @@ func processReceipts(w http.ResponseWriter, r *http.Request) {
 	err := validate.Struct(receipt)
 	if err != nil {
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
-
+			errResponse := buildValidationErrorResponse(validationErrors)
+			w.WriteHeader(http.StatusBadRequest)
+			render.JSON(w, r, errResponse)
+			return
 		}
 	}
 
