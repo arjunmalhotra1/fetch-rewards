@@ -56,16 +56,6 @@ func (rs ReceiptService) ProcessReceipts(receipt repository.Receipt) (string, er
 	return receipt.UUID, nil
 }
 
-func calculateRetailerPoints(retailer string) int {
-	points := 0
-	for _, v := range retailer {
-		if unicode.IsLetter(v) || unicode.IsDigit(v) {
-			points++
-		}
-	}
-	return points
-}
-
 func calculatePoints(receipt repository.Receipt) int {
 	totalPoints := 0
 	totalPoints += calculateRetailerPoints(receipt.Retailer)
@@ -92,6 +82,16 @@ func calculatePoints(receipt repository.Receipt) int {
 	}
 
 	return totalPoints
+}
+
+func calculateRetailerPoints(retailer string) int {
+	points := 0
+	for _, v := range retailer {
+		if unicode.IsLetter(v) || unicode.IsDigit(v) {
+			points++
+		}
+	}
+	return points
 }
 
 func itemsPoints(items []repository.Item) int {
