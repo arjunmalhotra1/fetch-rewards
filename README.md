@@ -1,3 +1,11 @@
+# Submission
+## How to run the application 
+Run from the root - ` go run main.go`
+
+## How to run tests
+Run from the root - `go test ./...`
+
+
 # Receipt Processor
 
 Build a webservice that fulfils the documented API. The API is described below. A formal definition is provided 
