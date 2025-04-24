@@ -81,7 +81,7 @@ func BuildValidationErrorResponse(errs validator.ValidationErrors) ValidationErr
 		errors = append(errors, FieldError{
 			Field:   err.Field(),
 			Rule:    err.Tag(),
-			Message: fmt.Sprintf("%s failed on the '%s' rule. The receipt is invalid.", err.Field(), err.Tag()),
+			Message: fmt.Sprintf("failed on the '%s' rule", err.Tag()),
 		})
 	}
 
